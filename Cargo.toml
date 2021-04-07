@@ -1,0 +1,14 @@
+[package]
+name = "webmonitor-rs"
+version = "0.1.0"
+authors = ["Jannis Becker <jbecker@jannisbecker.me>"]
+edition = "2018"
+
+[features]
+default = ["use-mongodb"]
+use-mongodb = []
+
+[dependencies]
+serde = "1.0.125"
+mongodb = { version = "1.2.0", default-features = false, features = ["sync"] }
+
