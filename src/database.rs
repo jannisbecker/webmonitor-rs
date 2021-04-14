@@ -1,10 +1,9 @@
-use bson::{self, doc};
 use std::env;
 
 use futures::StreamExt;
 
-use bson::oid::ObjectId;
 use mongodb::{
+    bson::{self, doc},
     options::{ClientOptions, FindOneOptions, ResolverConfig},
     Client, Collection, Database,
 };
@@ -64,7 +63,7 @@ impl DatabaseAdapter {
         let option = self.job_collection.find_one(filter, None).await?;
 
         match option {
-            Some(doc) => Ok(Some(bson::from_document(doc).unwrap())),
+            Some(doc) => Ok(Some(bson::from_document(doc)?)),
             None => Ok(None),
         }
     }

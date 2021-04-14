@@ -4,16 +4,10 @@ version = "0.1.0"
 authors = ["Jannis Becker <jbecker@jannisbecker.me>"]
 edition = "2018"
 
-[features]
-default = ["use-mongodb"]
-use-mongodb = []
 [dependencies]
-dotenv = "0.15.0"
-futures = "0.3.13"
 tokio = { version = "1.4.0", features = ["full"] }
+futures = "0.3.13"
+dotenv = "0.15.0"
 serde = "1.0.125"
 mongodb = "2.0.0-alpha.1"
 thiserror = "1.0.24"
-async-trait = "0.1.49"
-bson = "1.2.2"
-

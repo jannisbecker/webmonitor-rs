@@ -1,5 +1,4 @@
-use bson::oid::ObjectId;
-use mongodb::bson::serde_helpers::*;
+use mongodb::bson::{oid::ObjectId, serde_helpers::*};
 use serde::{Deserialize, Deserializer, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
