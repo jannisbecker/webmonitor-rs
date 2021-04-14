@@ -1,5 +1,6 @@
 use std::env;
 
+use bson::oid::ObjectId;
 use futures::StreamExt;
 
 use mongodb::{
@@ -58,7 +59,7 @@ impl DatabaseAdapter {
     }
 
     pub async fn jobs_get_one(&self, id: &str) -> Result<Option<Job>> {
-        let filter = doc! { "_id": id };
+        let filter = doc! { "_id": ObjectId::with_string(id)? };
 
         let option = self.job_collection.find_one(filter, None).await?;
 
@@ -94,7 +95,7 @@ impl DatabaseAdapter {
     }
 
     pub async fn jobs_delete(&self, id: &str) -> Result<()> {
-        let filter = doc! { "_id": id };
+        let filter = doc! { "_id": ObjectId::with_string(id)? };
 
         self.job_collection.delete_one(filter, None).await?;
 
@@ -128,7 +129,7 @@ impl DatabaseAdapter {
     }
 
     pub async fn snapshots_get_one(&self, id: &str) -> Result<Option<Snapshot>> {
-        let filter = doc! { "_id": id };
+        let filter = doc! { "_id": ObjectId::with_string(id)? };
 
         let option = self.snapshot_collection.find_one(filter, None).await?;
 
@@ -139,7 +140,7 @@ impl DatabaseAdapter {
     }
 
     pub async fn snapshots_delete(&self, id: &str) -> Result<()> {
-        let filter = doc! { "_id": id };
+        let filter = doc! { "_id": ObjectId::with_string(id)? };
 
         self.job_collection.delete_one(filter, None).await?;
 
