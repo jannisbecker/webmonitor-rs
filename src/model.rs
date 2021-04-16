@@ -11,7 +11,7 @@ pub struct Job {
     pub id: String,
     pub name: String,
     pub url: String,
-    pub interval: i16,
+    pub interval: u64,
     pub filters: Vec<Filter>,
 }
 
@@ -19,7 +19,7 @@ pub struct Job {
 pub struct InsertableJob {
     pub name: String,
     pub url: String,
-    pub interval: i16,
+    pub interval: u64,
     pub filters: Vec<Filter>,
 }
 

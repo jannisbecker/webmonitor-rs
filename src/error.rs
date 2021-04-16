@@ -15,3 +15,9 @@ pub enum DatabaseError {
     #[error("MongoDB has thrown an error")]
     MongoDBError(#[from] mongodb::error::Error),
 }
+
+#[derive(Error, Debug)]
+pub enum SchedulerError {
+    #[error("Failed to initialize Scheduler")]
+    InitError(#[from] std::io::Error),
+}

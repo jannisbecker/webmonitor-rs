@@ -7,6 +7,7 @@ use model::{CSSFilterOptions, Filter, InsertableJob};
 mod database;
 mod error;
 mod model;
+mod scheduler;
 
 use database::DatabaseAdapter;
 
