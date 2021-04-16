@@ -5,7 +5,7 @@ authors = ["Jannis Becker <jbecker@jannisbecker.me>"]
 edition = "2018"
 
 [dependencies]
-tokio = { version = "1.4.0", features = ["full"] }
+tokio = { version = "1.5.0", features = ["full"] }
 futures = "0.3.13"
 dotenv = "0.15.0"
 serde = "1.0.125"
