@@ -1,5 +1,6 @@
 use scraper::{Html, Selector};
 
+
 use crate::{
     error::WatcherError,
     model::{CSSFilterOptions, Filter, Job},
@@ -11,7 +12,7 @@ impl Watcher {
     pub async fn run_watcher_for_job(self, job: Job) -> Result<(), WatcherError> {
         let website_dom = reqwest::get(job.url).await?.text().await?;
 
-        let filtered_dom = self.apply_filters(website_dom, job.filters);
+        let filtered_dom = self.apply_filters(website_dom, job.filters)?;
 
         Ok(())
     }
@@ -32,7 +33,7 @@ impl Watcher {
         options: CSSFilterOptions,
     ) -> Result<String, WatcherError> {
         let fragment = Html::parse_fragment(dom.as_str());
-        let selector = Selector::parse(options.selector.as_str())?;
+        let selector = Selector::parse(options.selector.as_str()).map_err(|e| )?;
 
         let result = fragment
             .select(&selector)
@@ -46,7 +47,12 @@ impl Watcher {
 
     fn apply_html2text_filter(self, dom: String) -> Result<String, WatcherError> {
         let fragment = Html::parse_fragment(dom.as_str());
+        let result = fragment.root_element().text().collect();
+
+        Ok(result)
     }
 
-    fn dom_has_changed(dom: String, other_dom: String) -> bool {}
+    fn dom_has_changed(dom: String, other_dom: String) -> bool {
+        dom == other_dom
+    }
 }
