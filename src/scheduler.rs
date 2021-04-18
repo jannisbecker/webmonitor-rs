@@ -9,7 +9,7 @@ pub struct Scheduler {
 }
 
 impl Scheduler {
-    pub fn init() -> Self {
+    pub fn new() -> Self {
         Self {
             scheduled_jobs: Arc::new(RwLock::new(HashSet::new())),
         }

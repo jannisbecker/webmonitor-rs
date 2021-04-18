@@ -17,7 +17,10 @@ pub enum DatabaseError {
 }
 
 #[derive(Error, Debug)]
-pub enum SchedulerError {
-    #[error("Failed to initialize Scheduler")]
-    InitError(#[from] std::io::Error),
+pub enum WatcherError {
+    #[error("Couldn't reach the website to be watched")]
+    RequestError(#[from] reqwest::Error),
+
+    #[error("Couldn't parse the given Filter selector")]
+    SelectorParseError(#[from] cssparser::ParseError),
 }

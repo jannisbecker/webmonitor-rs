@@ -11,6 +11,8 @@ pub struct Job {
     pub id: String,
     pub name: String,
     pub url: String,
+
+    #[serde(serialize_with = "serialize_u64_as_i64")]
     pub interval: u64,
     pub filters: Vec<Filter>,
 }
@@ -19,6 +21,8 @@ pub struct Job {
 pub struct InsertableJob {
     pub name: String,
     pub url: String,
+
+    #[serde(serialize_with = "serialize_u64_as_i64")]
     pub interval: u64,
     pub filters: Vec<Filter>,
 }
@@ -27,6 +31,7 @@ pub struct InsertableJob {
 pub enum Filter {
     CSSFilter(CSSFilterOptions),
     XPathFilter(XPathFilterOptions),
+    Html2TextFilter,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -50,6 +55,5 @@ where
     D: Deserializer<'de>,
 {
     let object_id = ObjectId::deserialize(deserializer)?;
-
     Ok(object_id.to_hex())
 }

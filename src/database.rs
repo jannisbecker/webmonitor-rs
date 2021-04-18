@@ -1,10 +1,9 @@
 use std::env;
 
-use bson::oid::ObjectId;
 use futures::StreamExt;
 
 use mongodb::{
-    bson::{self, doc},
+    bson::{self, doc, oid::ObjectId},
     options::{ClientOptions, FindOneOptions, ResolverConfig},
     Client, Collection, Database,
 };

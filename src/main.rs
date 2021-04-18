@@ -8,6 +8,7 @@ mod database;
 mod error;
 mod model;
 mod scheduler;
+mod watcher;
 
 use database::DatabaseAdapter;
 
