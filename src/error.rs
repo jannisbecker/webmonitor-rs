@@ -23,4 +23,7 @@ pub enum WatcherError {
 
     #[error("Couldn't parse the given Filter selector")]
     SelectorParseError,
+
+    #[error("Error accessing the database")]
+    DatabaseError(#[from] DatabaseError),
 }

@@ -18,7 +18,6 @@ impl Scheduler {
     }
 
     pub async fn schedule(&self, job: Job) {
-        let job = job.clone();
         let jobs_ref = Arc::clone(&self.scheduled_jobs);
         let watcher_ref = Arc::clone(&self.watcher);
 

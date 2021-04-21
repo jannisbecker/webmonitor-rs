@@ -22,6 +22,14 @@ impl Watcher {
 
         let filtered_dom = self.apply_filters(website_dom, &job.filters)?;
 
+        let last_snapshot = self.db.snapshots_get_latest(&job.id).await?;
+
+        if last_snapshot.is_none()
+            || self.dom_has_changed(&last_snapshot.unwrap().data, &filtered_dom)
+        {
+            println!("Job {} has changed!", &job.name)
+        }
+
         Ok(())
     }
 
@@ -61,7 +69,7 @@ impl Watcher {
         Ok(result)
     }
 
-    fn dom_has_changed(dom: String, other_dom: String) -> bool {
+    fn dom_has_changed(&self, dom: &str, other_dom: &str) -> bool {
         dom == other_dom
     }
 }

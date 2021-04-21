@@ -21,7 +21,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     let db = Arc::new(DatabaseAdapter::init().await?);
     let watcher = Arc::new(Watcher::new(Arc::clone(&db)));
-    let scheduler = Scheduler::new(watcher);
+    let scheduler = Arc::new(Scheduler::new(Arc::clone(&watcher)));
 
     let _ = db
         .jobs_get_all()
@@ -40,6 +40,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     let added_job = db.jobs_add(job).await?;
     let result = db.jobs_get_one(added_job.id.as_str()).await?;
+
+    loop {}
 
     Ok(())
 }
