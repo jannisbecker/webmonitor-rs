@@ -33,7 +33,11 @@ impl Scheduler {
                     break;
                 }
 
-                watcher_ref.run_watcher_for_job(&job);
+                match watcher_ref.run_watcher_for_job(&job).await {
+                    Ok(()) => (),
+                    // TODO error handling on failed jobs
+                    WatcherError => (),
+                };
             }
         });
     }
