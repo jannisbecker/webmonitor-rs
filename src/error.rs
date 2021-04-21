@@ -22,5 +22,5 @@ pub enum WatcherError {
     RequestError(#[from] reqwest::Error),
 
     #[error("Couldn't parse the given Filter selector")]
-    SelectorParseError(#[from] cssparser::ParseError),
+    SelectorParseError,
 }

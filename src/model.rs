@@ -1,7 +1,7 @@
 use mongodb::bson::{oid::ObjectId, serde_helpers::*};
 use serde::{Deserialize, Deserializer, Serialize};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Job {
     #[serde(
         rename = "_id",
@@ -17,7 +17,7 @@ pub struct Job {
     pub filters: Vec<Filter>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct InsertableJob {
     pub name: String,
     pub url: String,
@@ -27,25 +27,25 @@ pub struct InsertableJob {
     pub filters: Vec<Filter>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub enum Filter {
     CSSFilter(CSSFilterOptions),
     XPathFilter(XPathFilterOptions),
     Html2TextFilter,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Snapshot {
     pub id: String,
     pub data: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct CSSFilterOptions {
     pub selector: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct XPathFilterOptions {
     pub selector: String,
 }

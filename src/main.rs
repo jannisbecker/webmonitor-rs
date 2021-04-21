@@ -1,4 +1,5 @@
 use std::error::Error;
+use std::sync::Arc;
 
 use dotenv::dotenv;
 
@@ -11,10 +12,22 @@ mod scheduler;
 mod watcher;
 
 use database::DatabaseAdapter;
+use scheduler::Scheduler;
+use watcher::Watcher;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     dotenv().ok();
+
+    let db = Arc::new(DatabaseAdapter::init().await?);
+    let watcher = Arc::new(Watcher::new(Arc::clone(&db)));
+    let scheduler = Scheduler::new(watcher);
+
+    let _ = db
+        .jobs_get_all()
+        .await?
+        .into_iter()
+        .map(|job| scheduler.schedule(job));
 
     let job = InsertableJob {
         name: String::from("bruh"),
@@ -25,15 +38,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
         })],
     };
 
-    let db = DatabaseAdapter::init().await?;
-
     let added_job = db.jobs_add(job).await?;
-
-    println!("{:#?}", added_job);
-
     let result = db.jobs_get_one(added_job.id.as_str()).await?;
-
-    println!("{:#?}", result);
 
     Ok(())
 }

@@ -23,7 +23,7 @@ pub struct DatabaseAdapter {
 type Result<T> = core::result::Result<T, DatabaseError>;
 
 impl DatabaseAdapter {
-    pub async fn init() -> Result<Box<Self>> {
+    pub async fn init() -> Result<Self> {
         let client_uri = env::var("DATABASE_URI")
             .expect("Please supply a valid DATABASE_URI in your .env file.");
         let database_name = env::var("DATABASE_NAME")
@@ -38,12 +38,12 @@ impl DatabaseAdapter {
         let job_collection = database.collection("jobs");
         let snapshot_collection = database.collection("snapshots");
 
-        Ok(Box::new(Self {
+        Ok(Self {
             client,
             database,
             job_collection,
             snapshot_collection,
-        }))
+        })
     }
 
     pub async fn jobs_get_all(&self) -> Result<Vec<Job>> {
