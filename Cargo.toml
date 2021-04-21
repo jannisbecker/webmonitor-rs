@@ -10,6 +10,8 @@ futures = "0.3.13"
 
 thiserror = "1.0.24"
 dotenv = "0.15.0"
+log = "0.4.0"
+env_logger = "0.8.3"
 
 serde = "1.0.125"
 mongodb = "2.0.0-alpha.1"

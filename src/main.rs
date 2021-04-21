@@ -1,8 +1,10 @@
+use futures::future;
 use std::error::Error;
 use std::sync::Arc;
 
 use dotenv::dotenv;
 
+use log::info;
 use model::{CSSFilterOptions, Filter, InsertableJob};
 
 mod database;
@@ -18,28 +20,17 @@ use watcher::Watcher;
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     dotenv().ok();
+    env_logger::init();
 
     let db = Arc::new(DatabaseAdapter::init().await?);
     let watcher = Arc::new(Watcher::new(Arc::clone(&db)));
     let scheduler = Arc::new(Scheduler::new(Arc::clone(&watcher)));
 
-    let _ = db
-        .jobs_get_all()
-        .await?
-        .into_iter()
-        .map(|job| scheduler.schedule(job));
+    let all_jobs = db.jobs_get_all().await?;
 
-    let job = InsertableJob {
-        name: String::from("bruh"),
-        url: String::from("https://monsterhunterfor20bucks.com"),
-        interval: 20,
-        filters: vec![Filter::CSSFilter(CSSFilterOptions {
-            selector: String::from("bruh selector"),
-        })],
-    };
+    future::join_all(all_jobs.into_iter().map(|job| scheduler.schedule(job))).await;
 
-    let added_job = db.jobs_add(job).await?;
-    let result = db.jobs_get_one(added_job.id.as_str()).await?;
+    info!("Scheduled existing jobs");
 
     loop {}
 

@@ -2,6 +2,7 @@ use std::env;
 
 use futures::StreamExt;
 
+use log::info;
 use mongodb::{
     bson::{self, doc, oid::ObjectId},
     options::{ClientOptions, FindOneOptions, ResolverConfig},
@@ -37,6 +38,8 @@ impl DatabaseAdapter {
         let database = client.database(database_name.as_str());
         let job_collection = database.collection("jobs");
         let snapshot_collection = database.collection("snapshots");
+
+        info!("Initialized database connection");
 
         Ok(Self {
             client,
