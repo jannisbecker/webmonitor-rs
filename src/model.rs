@@ -86,6 +86,7 @@ pub enum Notifier {
 #[serde(rename_all = "camelCase")]
 pub struct DiscordNotifierOptions {
     pub webhook_url: String,
+    pub user_mentions: Option<String>,
 }
 
 #[derive(Clone, Serialize, Deserialize)]

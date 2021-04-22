@@ -46,36 +46,34 @@ impl Notifier {
 
         if let Some(snap) = prev_snapshot {
             embed_fields.push(json!({
-                "name": "Previous:",
-                "value": format!(
-                "```html\n{}```", &snap.data)
+               "name": "Previous:",
+               "value": format!("```html\n{}```", &snap.data)
             }))
         }
 
         embed_fields.push(json!({
             "name": "New:",
-            "value": format!(
-            "```html\n{}```", &new_snapshot.data)
+            "value": format!("```html\n{}```", &new_snapshot.data)
         }));
 
-        let webhook_data = json!(
-            {
-                "embeds": [
-                    {
-                        "title": format!("Job '{}' changed.", &job.name),
-                        "fields": embed_fields
-                    }
-                ]
+        let mut request_body = json!({
+            "embeds": [
+                {
+                    "title": format!("Job '{}' changed.", &job.name),
+                    "fields": embed_fields
+                }
+            ]
+        });
 
-            }
-        )
-        .to_string();
+        if let Some(mentions) = &options.user_mentions {
+            request_body["content"] = json!(mentions);
+        }
 
         let client = reqwest::Client::new();
         let _ = client
             .post(&options.webhook_url)
             .header("Content-type", "application/json")
-            .body(webhook_data)
+            .body(request_body.to_string())
             .send()
             .await;
     }
