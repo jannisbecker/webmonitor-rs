@@ -27,14 +27,19 @@ impl Watcher {
 
         let prev_snapshot = self.db.snapshots_get_latest(&job.id).await?;
 
+        //println!("{:#?}", &prev_snapshot);
+
         if prev_snapshot.is_none()
             || self.dom_has_changed(&prev_snapshot.clone().unwrap().data, &filtered_dom)
         {
-            let data = InsertableSnapshot { data: filtered_dom };
+            let data = InsertableSnapshot {
+                job_id: (&job.id).clone(),
+                data: filtered_dom,
+            };
             let new_snapshot = self.db.snapshots_add(data).await?;
 
             self.notifier
-                .send_notifications_for_job_change(&job, prev_snapshot, new_snapshot)
+                .send_notifications_for_job(&job, &prev_snapshot, &new_snapshot)
                 .await;
         }
 
@@ -78,6 +83,6 @@ impl Watcher {
     }
 
     fn dom_has_changed(&self, dom: &str, other_dom: &str) -> bool {
-        dom == other_dom
+        dom != other_dom
     }
 }

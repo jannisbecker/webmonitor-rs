@@ -83,6 +83,7 @@ impl DatabaseAdapter {
             url: job.url,
             interval: job.interval,
             filters: job.filters,
+            notifiers: job.notifiers,
         })
     }
 
@@ -119,7 +120,7 @@ impl DatabaseAdapter {
 
     pub async fn snapshots_get_latest(&self, job_id: &str) -> Result<Option<Snapshot>> {
         let filter = doc! { "job_id": job_id };
-        let options = FindOneOptions::builder().sort(doc! { "_id": 1}).build();
+        let options = FindOneOptions::builder().sort(doc! { "_id": -1}).build();
 
         let option = self.snapshot_collection.find_one(filter, options).await?;
 
@@ -137,6 +138,7 @@ impl DatabaseAdapter {
 
         Ok(Snapshot {
             id: id,
+            job_id: snapshot.job_id,
             data: snapshot.data,
         })
     }

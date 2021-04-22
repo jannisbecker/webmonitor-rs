@@ -24,6 +24,7 @@ pub struct Job {
     #[serde(serialize_with = "serialize_u64_as_i64")]
     pub interval: u64,
     pub filters: Vec<Filter>,
+    pub notifiers: Vec<Notifier>,
 }
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -34,10 +35,11 @@ pub struct InsertableJob {
     #[serde(serialize_with = "serialize_u64_as_i64")]
     pub interval: u64,
     pub filters: Vec<Filter>,
+    pub notifiers: Vec<Notifier>,
 }
 
 // Snapshots of a Job
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Snapshot {
     #[serde(
         rename = "_id",
@@ -45,11 +47,13 @@ pub struct Snapshot {
         deserialize_with = "deserialize_object_id_to_hex_string"
     )]
     pub id: String,
+    pub job_id: String,
     pub data: String,
 }
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct InsertableSnapshot {
+    pub job_id: String,
     pub data: String,
 }
 
@@ -81,12 +85,12 @@ pub enum Notifier {
 #[derive(Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DiscordNotifierOptions {
-    webhook_url: String,
+    pub webhook_url: String,
 }
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct EmailNotifierOptions {
-    sender: String,
-    recipient: String,
-    subject: String,
+    pub sender: String,
+    pub recipient: String,
+    pub subject: String,
 }
