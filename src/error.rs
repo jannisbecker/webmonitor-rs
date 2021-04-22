@@ -21,9 +21,9 @@ pub enum WatcherError {
     #[error("Couldn't reach the website to be watched")]
     RequestError(#[from] reqwest::Error),
 
-    #[error("Couldn't parse the given Filter selector")]
-    SelectorParseError,
-
     #[error("Error accessing the database")]
     DatabaseError(#[from] DatabaseError),
+
+    #[error("Couldn't parse the given Filter selector")]
+    SelectorParseError,
 }

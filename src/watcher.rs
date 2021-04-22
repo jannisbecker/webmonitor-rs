@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use log::debug;
+use log::info;
 use scraper::{Html, Selector};
 
 use crate::{
@@ -19,20 +19,16 @@ impl Watcher {
     }
 
     pub async fn run_watcher_for_job(&self, job: &Job) -> Result<(), WatcherError> {
-        debug!("Requesting {}", &job.url);
         let website_dom = reqwest::get(&job.url).await?.text().await?;
 
-        debug!("Applying filters");
         let filtered_dom = self.apply_filters(website_dom, &job.filters)?;
 
-        debug!("Get most recent snapshot");
         let last_snapshot = self.db.snapshots_get_latest(&job.id).await?;
 
         if last_snapshot.is_none()
             || self.dom_has_changed(&last_snapshot.unwrap().data, &filtered_dom)
         {
-            debug!("Found change");
-            println!("Job {} has changed!", &job.name)
+            info!("Job '{}' has changed!", &job.name);
         }
 
         Ok(())

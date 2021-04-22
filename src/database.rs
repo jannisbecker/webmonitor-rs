@@ -39,7 +39,7 @@ impl DatabaseAdapter {
         let job_collection = database.collection("jobs");
         let snapshot_collection = database.collection("snapshots");
 
-        info!("Initialized database connection");
+        info!("Connected to database.");
 
         Ok(Self {
             client,
@@ -110,7 +110,6 @@ impl DatabaseAdapter {
         let mut cursor = self.snapshot_collection.find(filter, None).await?;
 
         let mut snapshots: Vec<Snapshot> = Vec::new();
-
         while let Some(doc) = cursor.next().await {
             snapshots.push(bson::from_document(doc?)?);
         }
