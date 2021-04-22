@@ -6,16 +6,18 @@ use scraper::{Html, Selector};
 use crate::{
     database::DatabaseAdapter,
     error::WatcherError,
-    model::{CSSFilterOptions, Filter, Job},
+    model::{CSSFilterOptions, Filter, InsertableSnapshot, Job},
+    notifier::Notifier,
 };
 
 pub struct Watcher {
     db: Arc<DatabaseAdapter>,
+    notifier: Arc<Notifier>,
 }
 
 impl Watcher {
-    pub fn new(db: Arc<DatabaseAdapter>) -> Self {
-        Self { db }
+    pub fn new(db: Arc<DatabaseAdapter>, notifier: Arc<Notifier>) -> Self {
+        Self { db, notifier }
     }
 
     pub async fn run_watcher_for_job(&self, job: &Job) -> Result<(), WatcherError> {
@@ -23,12 +25,17 @@ impl Watcher {
 
         let filtered_dom = self.apply_filters(website_dom, &job.filters)?;
 
-        let last_snapshot = self.db.snapshots_get_latest(&job.id).await?;
+        let prev_snapshot = self.db.snapshots_get_latest(&job.id).await?;
 
-        if last_snapshot.is_none()
-            || self.dom_has_changed(&last_snapshot.unwrap().data, &filtered_dom)
+        if prev_snapshot.is_none()
+            || self.dom_has_changed(&prev_snapshot.clone().unwrap().data, &filtered_dom)
         {
-            info!("Job '{}' has changed!", &job.name);
+            let data = InsertableSnapshot { data: filtered_dom };
+            let new_snapshot = self.db.snapshots_add(data).await?;
+
+            self.notifier
+                .send_notifications_for_job_change(&job, prev_snapshot, new_snapshot)
+                .await;
         }
 
         Ok(())

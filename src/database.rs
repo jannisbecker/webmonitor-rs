@@ -11,7 +11,7 @@ use mongodb::{
 
 use crate::{
     error::DatabaseError,
-    model::{InsertableJob, Job, Snapshot},
+    model::{InsertableJob, InsertableSnapshot, Job, Snapshot},
 };
 
 pub struct DatabaseAdapter {
@@ -127,6 +127,18 @@ impl DatabaseAdapter {
             Some(doc) => Ok(Some(bson::from_document(doc)?)),
             None => Ok(None),
         }
+    }
+
+    pub async fn snapshots_add(&self, snapshot: InsertableSnapshot) -> Result<Snapshot> {
+        let doc = bson::to_document(&snapshot)?;
+
+        let result = self.snapshot_collection.insert_one(doc, None).await?;
+        let id = result.inserted_id.as_object_id().unwrap().to_hex();
+
+        Ok(Snapshot {
+            id: id,
+            data: snapshot.data,
+        })
     }
 
     pub async fn snapshots_get_one(&self, id: &str) -> Result<Option<Snapshot>> {

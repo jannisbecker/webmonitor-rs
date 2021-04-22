@@ -1,4 +1,5 @@
 use futures::future;
+use notifier::Notifier;
 use std::error::Error;
 use std::sync::Arc;
 
@@ -12,6 +13,7 @@ use watcher::Watcher;
 mod database;
 mod error;
 mod model;
+mod notifier;
 mod scheduler;
 mod watcher;
 
@@ -21,7 +23,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
     env_logger::init();
 
     let db = Arc::new(DatabaseAdapter::init().await?);
-    let watcher = Arc::new(Watcher::new(Arc::clone(&db)));
+    let notifier = Arc::new(Notifier::new());
+    let watcher = Arc::new(Watcher::new(Arc::clone(&db), Arc::clone(&notifier)));
     let scheduler = Arc::new(Scheduler::new(Arc::clone(&watcher)));
 
     info!("Scheduling existing jobs");
