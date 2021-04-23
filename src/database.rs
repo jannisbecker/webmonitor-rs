@@ -38,7 +38,6 @@ impl DatabaseAdapter {
         let database = client.database(database_name.as_str());
         let job_collection = database.collection("jobs");
         let snapshot_collection = database.collection("snapshots");
-
         info!("Connected to database.");
 
         Ok(Self {
@@ -62,7 +61,6 @@ impl DatabaseAdapter {
 
     pub async fn jobs_get_one(&self, id: &str) -> Result<Option<Job>> {
         let filter = doc! { "_id": ObjectId::with_string(id)? };
-
         let option = self.job_collection.find_one(filter, None).await?;
 
         match option {
@@ -89,7 +87,6 @@ impl DatabaseAdapter {
 
     pub async fn jobs_update(&self, job: Job) -> Result<Job> {
         let filter = doc! { "_id": &job.id.as_str() };
-
         let doc = bson::to_document(&job)?;
 
         self.job_collection.update_one(filter, doc, None).await?;
@@ -123,7 +120,6 @@ impl DatabaseAdapter {
         let options = FindOneOptions::builder().sort(doc! { "_id": -1}).build();
 
         let option = self.snapshot_collection.find_one(filter, options).await?;
-
         match option {
             Some(doc) => Ok(Some(bson::from_document(doc)?)),
             None => Ok(None),
@@ -147,7 +143,6 @@ impl DatabaseAdapter {
         let filter = doc! { "_id": ObjectId::with_string(id)? };
 
         let option = self.snapshot_collection.find_one(filter, None).await?;
-
         match option {
             Some(doc) => Ok(Some(bson::from_document(doc)?)),
             None => Ok(None),

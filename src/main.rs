@@ -32,14 +32,18 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     let job = InsertableJob {
         name: String::from("Check time every 10 seconds"),
-        url: String::from("https://www.unixtimestamp.com/index.php"),
+        url: String::from("https://setyourwatchby.netlify.app/"),
         interval: 10,
-        filters: vec![Filter::CSSFilter(CSSFilterOptions {
-            selector: String::from("div.ui.statistic"),
-        })],
+
+        filters: vec![
+            Filter::CSSFilter(CSSFilterOptions {
+                selector: String::from("h1.time"),
+            }),
+            Filter::Html2TextFilter
+        ],
         notifiers: vec![NotifierModel::Discord(DiscordNotifierOptions {
             webhook_url: String::from("https://discord.com/api/webhooks/834762172088451078/9bO6xDtn2t7auMF8q184qIqvTzBYeYJYJl0B2ODhoNUobQ-VSiXJL9r476SwVQCtjEAS"),
-            user_mentions: Some(String::from("@here, <@148892877253115904>"))
+            user_mentions: Some(String::from("@here, <@148892877253115904>")),
         })]
     };
 

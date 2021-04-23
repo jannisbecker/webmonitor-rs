@@ -27,8 +27,6 @@ impl Watcher {
 
         let prev_snapshot = self.db.snapshots_get_latest(&job.id).await?;
 
-        //println!("{:#?}", &prev_snapshot);
-
         if prev_snapshot.is_none()
             || self.dom_has_changed(&prev_snapshot.clone().unwrap().data, &filtered_dom)
         {
