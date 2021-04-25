@@ -79,6 +79,7 @@ impl DatabaseAdapter {
             id: id,
             name: job.name,
             url: job.url,
+            show_diff: job.show_diff,
             interval: job.interval,
             filters: job.filters,
             notifiers: job.notifiers,

@@ -1,5 +1,6 @@
 use futures::future;
 use serde_json::{json, Value};
+use similar::{ChangeTag, TextDiff};
 
 use crate::model::{
     DiscordNotifierOptions, EmailNotifierOptions, Job, Notifier as NotifierModel, Snapshot,
@@ -44,17 +45,52 @@ impl Notifier {
     ) {
         let mut embed_fields: Vec<Value> = Vec::new();
 
-        if let Some(snap) = prev_snapshot {
-            embed_fields.push(json!({
-               "name": "Previous:",
-               "value": format!("```html\n{}```", &snap.data)
-            }))
-        }
+        if job.show_diff {
+            let diff = TextDiff::from_lines(
+                match prev_snapshot {
+                    Some(snap) => snap.data.as_str(),
+                    None => "",
+                },
+                &new_snapshot.data,
+            );
 
-        embed_fields.push(json!({
-            "name": "New:",
-            "value": format!("```html\n{}```", &new_snapshot.data)
-        }));
+            let diff_content = diff
+                .iter_all_changes()
+                .fold(String::from(""), |mut acc, change| {
+                    let sign = match change.tag() {
+                        ChangeTag::Delete => "- ",
+                        ChangeTag::Insert => "+ ",
+                        ChangeTag::Equal => "  ",
+                    };
+
+                    acc.push_str(sign);
+                    acc.push_str(&change.to_string());
+
+                    acc
+                });
+
+            embed_fields.push(json!(
+                {
+                    "name": "Diff:",
+                    "value": format!("```diff\n{}```", diff_content)
+                }
+            ));
+        } else {
+            if let Some(snap) = prev_snapshot {
+                embed_fields.push(json!(
+                    {
+                        "name": "Previous:",
+                        "value": format!("```html\n{}```", &snap.data)
+                    }
+                ));
+            }
+            embed_fields.push(json!(
+                {
+                    "name": "New:",
+                    "value": format!("```html\n{}```", &new_snapshot.data)
+                }
+            ));
+        }
 
         let mut request_body = json!({
             "embeds": [

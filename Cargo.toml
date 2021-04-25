@@ -19,3 +19,5 @@ mongodb = "2.0.0-alpha.1"
 
 reqwest = "0.11.3"
 scraper = "0.12.0"
+
+similar = "1.3.0"

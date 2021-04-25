@@ -20,6 +20,7 @@ pub struct Job {
     pub id: String,
     pub name: String,
     pub url: String,
+    pub show_diff: bool,
 
     #[serde(serialize_with = "serialize_u64_as_i64")]
     pub interval: u64,
@@ -31,6 +32,7 @@ pub struct Job {
 pub struct InsertableJob {
     pub name: String,
     pub url: String,
+    pub show_diff: bool,
 
     #[serde(serialize_with = "serialize_u64_as_i64")]
     pub interval: u64,
@@ -94,4 +96,10 @@ pub struct EmailNotifierOptions {
     pub sender: String,
     pub recipient: String,
     pub subject: String,
+}
+
+pub struct JobChange<'a> {
+    pub job: &'a Job,
+    pub prev_snapshot: &'a Option<Snapshot>,
+    pub new_snapshot: &'a Snapshot,
 }
