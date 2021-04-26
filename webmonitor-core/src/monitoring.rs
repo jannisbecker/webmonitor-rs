@@ -1,26 +1,25 @@
 use std::sync::Arc;
 
-use log::info;
 use scraper::{Html, Selector};
 
 use crate::{
-    database::DatabaseAdapter,
     error::WatcherError,
     model::{CSSFilterOptions, Filter, InsertableSnapshot, Job},
-    notifier::Notifier,
+    notifications::NotificationDispatcher,
+    repository::Repository,
 };
 
-pub struct Watcher {
-    db: Arc<DatabaseAdapter>,
-    notifier: Arc<Notifier>,
+pub struct WebsiteMonitor {
+    db: Arc<Repository>,
+    notifier: Arc<NotificationDispatcher>,
 }
 
-impl Watcher {
-    pub fn new(db: Arc<DatabaseAdapter>, notifier: Arc<Notifier>) -> Self {
+impl WebsiteMonitor {
+    pub fn new(db: Arc<Repository>, notifier: Arc<NotificationDispatcher>) -> Self {
         Self { db, notifier }
     }
 
-    pub async fn run_watcher_for_job(&self, job: &Job) -> Result<(), WatcherError> {
+    pub async fn run_website_check_for_job(&self, job: &Job) -> Result<(), WatcherError> {
         let website_dom = reqwest::get(&job.url).await?.text().await?;
 
         let filtered_dom = self.apply_filters(website_dom, &job.filters)?;

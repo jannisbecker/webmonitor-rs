@@ -6,9 +6,9 @@ use crate::model::{
     DiscordNotifierOptions, EmailNotifierOptions, Job, Notifier as NotifierModel, Snapshot,
 };
 
-pub struct Notifier {}
+pub struct NotificationDispatcher {}
 
-impl Notifier {
+impl NotificationDispatcher {
     pub fn new() -> Self {
         Self {}
     }

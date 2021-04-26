@@ -3,15 +3,15 @@ use std::{collections::HashSet, sync::Arc, time::Duration};
 use log::{info, warn};
 use tokio::{sync::RwLock, time};
 
-use crate::{model::Job, watcher::Watcher};
+use crate::{model::Job, monitoring::WebsiteMonitor};
 
-pub struct Scheduler {
-    watcher: Arc<Watcher>,
+pub struct JobScheduler {
+    watcher: Arc<WebsiteMonitor>,
     scheduled_jobs: Arc<RwLock<HashSet<String>>>,
 }
 
-impl Scheduler {
-    pub fn new(watcher: Arc<Watcher>) -> Self {
+impl JobScheduler {
+    pub fn new(watcher: Arc<WebsiteMonitor>) -> Self {
         Self {
             watcher,
             scheduled_jobs: Arc::new(RwLock::new(HashSet::new())),
@@ -38,7 +38,7 @@ impl Scheduler {
                     break;
                 }
 
-                let result = watcher_ref.run_watcher_for_job(&job).await;
+                let result = watcher_ref.run_website_check_for_job(&job).await;
 
                 if let Err(e) = result {
                     warn!("There was a problem checking job '{}': {}", &job.name, e);

@@ -14,7 +14,7 @@ use crate::{
     model::{InsertableJob, InsertableSnapshot, Job, Snapshot},
 };
 
-pub struct DatabaseAdapter {
+pub struct Repository {
     client: Client,
     database: Database,
     job_collection: Collection,
@@ -23,7 +23,7 @@ pub struct DatabaseAdapter {
 
 type Result<T> = core::result::Result<T, DatabaseError>;
 
-impl DatabaseAdapter {
+impl Repository {
     pub async fn init() -> Result<Self> {
         let client_uri = env::var("DATABASE_URI")
             .expect("Please supply a valid DATABASE_URI in your .env file.");

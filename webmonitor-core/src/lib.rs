@@ -1,9 +1,9 @@
-pub mod database;
 pub mod error;
 pub mod model;
-pub mod notifier;
-pub mod scheduler;
-pub mod watcher;
+pub mod monitoring;
+pub mod notifications;
+pub mod repository;
+pub mod scheduling;
 
 pub struct Webmonitor;
 
