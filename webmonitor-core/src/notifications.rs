@@ -1,48 +1,27 @@
-use futures::future;
+use async_trait::async_trait;
 use serde_json::{json, Value};
 use similar::{ChangeTag, TextDiff};
 
-use crate::model::{
-    DiscordNotifierOptions, EmailNotifierOptions, Job, Notifier as NotifierModel, Snapshot,
-};
+use crate::model::{DiscordNotificationOptions, EmailNotificationOptions, Job, Snapshot};
 
-pub struct NotificationDispatcher {}
+#[async_trait]
+pub trait NotificationSend {
+    async fn send(&self, job: &Job, prev_snapshot: &Option<Snapshot>, new_snapshot: &Snapshot);
+}
 
-impl NotificationDispatcher {
-    pub fn new() -> Self {
-        Self {}
+pub struct DiscordNotification {
+    options: DiscordNotificationOptions,
+}
+
+impl DiscordNotification {
+    pub fn from_options(options: DiscordNotificationOptions) -> Self {
+        Self { options }
     }
+}
 
-    pub async fn send_notifications_for_job(
-        &self,
-        job: &Job,
-        prev_snapshot: &Option<Snapshot>,
-        new_snapshot: &Snapshot,
-    ) {
-        let notifiers = &job.notifiers;
-
-        future::join_all(notifiers.into_iter().map(|notifier| async move {
-            match notifier {
-                NotifierModel::Discord(options) => {
-                    self.send_discord_notification(job, &prev_snapshot, &new_snapshot, &options)
-                        .await
-                }
-                NotifierModel::Email(options) => {
-                    self.send_email_notification(job, &prev_snapshot, &new_snapshot, &options)
-                        .await
-                }
-            }
-        }))
-        .await;
-    }
-
-    async fn send_discord_notification(
-        &self,
-        job: &Job,
-        prev_snapshot: &Option<Snapshot>,
-        new_snapshot: &Snapshot,
-        options: &DiscordNotifierOptions,
-    ) {
+#[async_trait]
+impl NotificationSend for DiscordNotification {
+    async fn send(&self, job: &Job, prev_snapshot: &Option<Snapshot>, new_snapshot: &Snapshot) {
         let mut embed_fields: Vec<Value> = Vec::new();
 
         if job.show_diff {
@@ -101,25 +80,31 @@ impl NotificationDispatcher {
             ]
         });
 
-        if let Some(mentions) = &options.user_mentions {
+        if let Some(mentions) = &self.options.user_mentions {
             request_body["content"] = json!(mentions);
         }
 
         let client = reqwest::Client::new();
         let _ = client
-            .post(&options.webhook_url)
+            .post(&self.options.webhook_url)
             .header("Content-type", "application/json")
             .body(request_body.to_string())
             .send()
             .await;
     }
+}
 
-    async fn send_email_notification(
-        &self,
-        job: &Job,
-        prev_snapshot: &Option<Snapshot>,
-        new_snapshot: &Snapshot,
-        options: &EmailNotifierOptions,
-    ) {
+pub struct EmailNotification {
+    options: EmailNotificationOptions,
+}
+
+impl EmailNotification {
+    pub fn from_options(options: EmailNotificationOptions) -> Self {
+        Self { options }
     }
+}
+
+#[async_trait]
+impl NotificationSend for EmailNotification {
+    async fn send(&self, job: &Job, prev_snapshot: &Option<Snapshot>, new_snapshot: &Snapshot) {}
 }

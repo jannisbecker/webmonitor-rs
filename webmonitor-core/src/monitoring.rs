@@ -1,22 +1,22 @@
 use std::sync::Arc;
 
+use futures::future;
 use scraper::{Html, Selector};
 
 use crate::{
     error::WatcherError,
-    model::{CSSFilterOptions, Filter, InsertableSnapshot, Job},
-    notifications::NotificationDispatcher,
+    model::{CSSFilterOptions, Filter, InsertableSnapshot, Job, Notification},
+    notifications::{DiscordNotification, EmailNotification, NotificationSend},
     repository::Repository,
 };
 
 pub struct WebsiteMonitor {
     db: Arc<Repository>,
-    notifier: Arc<NotificationDispatcher>,
 }
 
 impl WebsiteMonitor {
-    pub fn new(db: Arc<Repository>, notifier: Arc<NotificationDispatcher>) -> Self {
-        Self { db, notifier }
+    pub fn new(db: Arc<Repository>) -> Self {
+        Self { db }
     }
 
     pub async fn run_website_check_for_job(&self, job: &Job) -> Result<(), WatcherError> {
@@ -35,9 +35,25 @@ impl WebsiteMonitor {
             };
             let new_snapshot = self.db.snapshots_add(data).await?;
 
-            self.notifier
-                .send_notifications_for_job(&job, &prev_snapshot, &new_snapshot)
-                .await;
+            let notifications = &job.notifications;
+            let new_snap = &new_snapshot;
+            let prev_snap = &prev_snapshot;
+
+            future::join_all(notifications.into_iter().map(|notification| async move {
+                match notification {
+                    Notification::Discord(options) => {
+                        DiscordNotification::from_options(options.clone())
+                            .send(job, &prev_snap, &new_snap)
+                            .await
+                    }
+                    Notification::Email(options) => {
+                        EmailNotification::from_options(options.clone())
+                            .send(job, &prev_snap, &new_snap)
+                            .await
+                    }
+                };
+            }))
+            .await;
         }
 
         Ok(())

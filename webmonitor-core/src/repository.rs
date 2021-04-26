@@ -82,7 +82,7 @@ impl Repository {
             show_diff: job.show_diff,
             interval: job.interval,
             filters: job.filters,
-            notifiers: job.notifiers,
+            notifications: job.notifications,
         })
     }
 
