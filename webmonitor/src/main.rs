@@ -1,24 +1,19 @@
 use futures::future;
-use model::{
-    CSSFilterOptions, DiscordNotifierOptions, Filter, InsertableJob, Notifier as NotifierModel,
-};
-use notifier::Notifier;
 use std::error::Error;
 use std::sync::Arc;
 
+use webmonitor_core::{
+    database::DatabaseAdapter,
+    model::{
+        CSSFilterOptions, DiscordNotifierOptions, Filter, InsertableJob, Notifier as NotifierModel,
+    },
+    notifier::Notifier,
+    scheduler::Scheduler,
+    watcher::Watcher,
+};
+
 use dotenv::dotenv;
 use log::info;
-
-use database::DatabaseAdapter;
-use scheduler::Scheduler;
-use watcher::Watcher;
-
-mod database;
-mod error;
-mod model;
-mod notifier;
-mod scheduler;
-mod watcher;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
