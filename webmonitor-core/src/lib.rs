@@ -1,4 +1,5 @@
 pub mod error;
+pub mod filters;
 pub mod model;
 pub mod monitoring;
 pub mod notifications;

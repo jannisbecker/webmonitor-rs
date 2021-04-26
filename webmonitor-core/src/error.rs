@@ -1,3 +1,4 @@
+use futures::stream::Filter;
 use mongodb::bson;
 use thiserror::Error;
 
@@ -24,6 +25,12 @@ pub enum WatcherError {
     #[error("Error accessing the database")]
     DatabaseError(#[from] DatabaseError),
 
+    #[error("Error while applying the filters")]
+    FilterError(#[from] FilterError),
+}
+
+#[derive(Error, Debug)]
+pub enum FilterError {
     #[error("Couldn't parse the given Filter selector")]
     SelectorParseError,
 }

@@ -14,7 +14,7 @@ pub struct DiscordNotification {
 }
 
 impl DiscordNotification {
-    pub fn from_options(options: DiscordNotificationOptions) -> Self {
+    pub fn with_options(options: DiscordNotificationOptions) -> Self {
         Self { options }
     }
 }
@@ -99,7 +99,7 @@ pub struct EmailNotification {
 }
 
 impl EmailNotification {
-    pub fn from_options(options: EmailNotificationOptions) -> Self {
+    pub fn with_options(options: EmailNotificationOptions) -> Self {
         Self { options }
     }
 }

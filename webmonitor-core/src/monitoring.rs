@@ -4,7 +4,8 @@ use futures::future;
 use scraper::{Html, Selector};
 
 use crate::{
-    error::WatcherError,
+    error::{FilterError, WatcherError},
+    filters::{CSSFilter, FilterApply, Html2TextFilter, XPathFilter},
     model::{CSSFilterOptions, Filter, InsertableSnapshot, Job, Notification},
     notifications::{DiscordNotification, EmailNotification, NotificationSend},
     repository::Repository,
@@ -42,12 +43,12 @@ impl WebsiteMonitor {
             future::join_all(notifications.into_iter().map(|notification| async move {
                 match notification {
                     Notification::Discord(options) => {
-                        DiscordNotification::from_options(options.clone())
+                        DiscordNotification::with_options(options.clone())
                             .send(job, &prev_snap, &new_snap)
                             .await
                     }
                     Notification::Email(options) => {
-                        EmailNotification::from_options(options.clone())
+                        EmailNotification::with_options(options.clone())
                             .send(job, &prev_snap, &new_snap)
                             .await
                     }
@@ -59,40 +60,18 @@ impl WebsiteMonitor {
         Ok(())
     }
 
-    fn apply_filters(&self, dom: String, filters: &Vec<Filter>) -> Result<String, WatcherError> {
+    fn apply_filters(&self, dom: String, filters: &Vec<Filter>) -> Result<String, FilterError> {
         filters
             .into_iter()
             .try_fold(dom, |filtered_dom, filter| match filter {
-                Filter::CSSFilter(options) => self.apply_css_filter(filtered_dom, options),
-                Filter::Html2TextFilter => self.apply_html2text_filter(filtered_dom),
-                Filter::XPathFilter(options) => Ok(filtered_dom),
+                Filter::CSSFilter(options) => {
+                    CSSFilter::with_options(options.clone()).apply(filtered_dom)
+                }
+                Filter::XPathFilter(options) => {
+                    XPathFilter::with_options(options.clone()).apply(filtered_dom)
+                }
+                Filter::Html2TextFilter => Html2TextFilter.apply(filtered_dom),
             })
-    }
-
-    fn apply_css_filter(
-        &self,
-        dom: String,
-        options: &CSSFilterOptions,
-    ) -> Result<String, WatcherError> {
-        let fragment = Html::parse_fragment(dom.as_str());
-        let selector = Selector::parse(options.selector.as_str())
-            .map_err(|_e| WatcherError::SelectorParseError)?;
-
-        let result = fragment
-            .select(&selector)
-            .fold(String::from(""), |mut acc, elem| {
-                acc.push_str(elem.html().as_str());
-                acc
-            });
-
-        Ok(result)
-    }
-
-    fn apply_html2text_filter(&self, dom: String) -> Result<String, WatcherError> {
-        let fragment = Html::parse_fragment(dom.as_str());
-        let result = fragment.root_element().text().collect();
-
-        Ok(result)
     }
 
     fn dom_has_changed(&self, dom: &str, other_dom: &str) -> bool {
