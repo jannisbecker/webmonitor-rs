@@ -1,12 +1,11 @@
 use std::sync::Arc;
 
 use futures::future;
-use scraper::{Html, Selector};
 
 use crate::{
     error::{FilterError, WatcherError},
     filters::{CSSFilter, FilterApply, Html2TextFilter, XPathFilter},
-    model::{CSSFilterOptions, Filter, InsertableSnapshot, Job, Notification},
+    model::{Filter, InsertableSnapshot, Job, Notification},
     notifications::{DiscordNotification, EmailNotification, NotificationSend},
     repository::Repository,
 };
@@ -37,22 +36,24 @@ impl WebsiteMonitor {
             let new_snapshot = self.db.snapshots_add(data).await?;
 
             let notifications = &job.notifications;
-            let new_snap = &new_snapshot;
-            let prev_snap = &prev_snapshot;
+            future::join_all(notifications.into_iter().map(|notification| {
+                let new_snap = &new_snapshot;
+                let prev_snap = &prev_snapshot;
 
-            future::join_all(notifications.into_iter().map(|notification| async move {
-                match notification {
-                    Notification::Discord(options) => {
-                        DiscordNotification::with_options(options.clone())
-                            .send(job, &prev_snap, &new_snap)
-                            .await
-                    }
-                    Notification::Email(options) => {
-                        EmailNotification::with_options(options.clone())
-                            .send(job, &prev_snap, &new_snap)
-                            .await
-                    }
-                };
+                async move {
+                    match notification {
+                        Notification::Discord(options) => {
+                            DiscordNotification::with_options(options.clone())
+                                .send(job, &prev_snap, &new_snap)
+                                .await
+                        }
+                        Notification::Email(options) => {
+                            EmailNotification::with_options(options.clone())
+                                .send(job, &prev_snap, &new_snap)
+                                .await
+                        }
+                    };
+                }
             }))
             .await;
         }

@@ -1,6 +1,6 @@
 use std::{collections::HashSet, sync::Arc, time::Duration};
 
-use log::{info, warn};
+use log::warn;
 use tokio::{sync::RwLock, time};
 
 use crate::{model::Job, monitoring::WebsiteMonitor};
