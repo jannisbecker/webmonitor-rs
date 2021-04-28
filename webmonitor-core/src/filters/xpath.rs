@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 
-use crate::{error::FilterError, model::XPathFilterOptions};
+use crate::{error::Result, model::XPathFilterOptions};
 
 use super::FilterApply;
 
@@ -16,7 +16,7 @@ impl XPathFilter {
 
 #[async_trait]
 impl FilterApply for XPathFilter {
-    fn apply(&self, dom: String) -> Result<String, FilterError> {
+    fn apply(&self, dom: String) -> Result<String> {
         Ok(dom)
     }
 }

@@ -3,7 +3,7 @@ use std::sync::Arc;
 use futures::future;
 
 use crate::{
-    error::{FilterError, WatcherError},
+    error::Result,
     filters::{CSSFilter, FilterApply, Html2TextFilter, XPathFilter},
     model::{Filter, InsertableSnapshot, Job, Notification},
     notifications::{DiscordNotification, EmailNotification, NotificationSend},
@@ -19,7 +19,7 @@ impl WebsiteMonitor {
         Self { db }
     }
 
-    pub async fn run_website_check_for_job(&self, job: &Job) -> Result<(), WatcherError> {
+    pub async fn run_website_check_for_job(&self, job: &Job) -> Result<()> {
         let website_dom = reqwest::get(&job.url).await?.text().await?;
 
         let filtered_dom = self.apply_filters(website_dom, &job.filters)?;
@@ -61,7 +61,7 @@ impl WebsiteMonitor {
         Ok(())
     }
 
-    fn apply_filters(&self, dom: String, filters: &Vec<Filter>) -> Result<String, FilterError> {
+    fn apply_filters(&self, dom: String, filters: &Vec<Filter>) -> Result<String> {
         filters
             .into_iter()
             .try_fold(dom, |filtered_dom, filter| match filter {

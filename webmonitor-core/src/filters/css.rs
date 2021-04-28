@@ -1,7 +1,10 @@
 use async_trait::async_trait;
 use scraper::{Html, Selector};
 
-use crate::{error::FilterError, model::CSSFilterOptions};
+use crate::{
+    error::{Result, WebmonitorError},
+    model::CSSFilterOptions,
+};
 
 use super::FilterApply;
 
@@ -17,10 +20,10 @@ impl CSSFilter {
 
 #[async_trait]
 impl FilterApply for CSSFilter {
-    fn apply(&self, dom: String) -> Result<String, FilterError> {
+    fn apply(&self, dom: String) -> Result<String> {
         let fragment = Html::parse_fragment(dom.as_str());
         let selector = Selector::parse(self.options.selector.as_str())
-            .map_err(|_e| FilterError::SelectorParseError)?;
+            .map_err(|e| WebmonitorError::SelectorParseError)?;
 
         let result = fragment
             .select(&selector)

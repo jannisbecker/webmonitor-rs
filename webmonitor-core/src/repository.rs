@@ -10,7 +10,7 @@ use mongodb::{
 };
 
 use crate::{
-    error::DatabaseError,
+    error::Result,
     model::{InsertableJob, InsertableSnapshot, Job, Snapshot},
 };
 
@@ -20,8 +20,6 @@ pub struct Repository {
     job_collection: Collection,
     snapshot_collection: Collection,
 }
-
-type Result<T> = core::result::Result<T, DatabaseError>;
 
 impl Repository {
     pub async fn init() -> Result<Self> {

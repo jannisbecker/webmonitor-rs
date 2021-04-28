@@ -1,12 +1,9 @@
 use futures::future;
 use std::error::Error;
-use std::sync::Arc;
 
 use webmonitor_core::{
     model::{CSSFilterOptions, DiscordNotificationOptions, Filter, InsertableJob, Notification},
-    monitoring::WebsiteMonitor,
-    repository::Repository,
-    scheduling::JobScheduler,
+    Webmonitor,
 };
 
 use dotenv::dotenv;
@@ -17,9 +14,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     dotenv().ok();
     env_logger::init();
 
-    let repository = Arc::new(Repository::init().await?);
-    let website_monitor = Arc::new(WebsiteMonitor::new(Arc::clone(&repository)));
-    let job_scheduler = Arc::new(JobScheduler::new(Arc::clone(&website_monitor)));
+    let monitor = Webmonitor::init().await?;
 
     let job = InsertableJob {
         name: String::from("Check time every 10 seconds"),
@@ -38,18 +33,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
         })]
     };
 
-    let added_job = repository.jobs_add(job).await?;
-    let _ = repository.jobs_get_one(added_job.id.as_str()).await?;
-
-    info!("Scheduling existing jobs");
-    future::join_all(
-        repository
-            .jobs_get_all()
-            .await?
-            .into_iter()
-            .map(|job| job_scheduler.schedule(job)),
-    )
-    .await;
+    let added_job = &monitor.add_job(job).await?;
+    let _ = &monitor.get_job(added_job.id.as_str()).await?;
 
     loop {}
 

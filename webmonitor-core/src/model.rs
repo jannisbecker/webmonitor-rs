@@ -1,4 +1,5 @@
-use mongodb::bson::{oid::ObjectId, serde_helpers::*};
+use bson::serde_helpers::{hex_string_as_object_id, serialize_u64_as_i64};
+use mongodb::bson::oid::ObjectId;
 use serde::{Deserialize, Deserializer, Serialize};
 
 pub fn deserialize_object_id_to_hex_string<'de, D>(deserializer: D) -> Result<String, D::Error>
@@ -12,11 +13,7 @@ where
 // Job structs
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Job {
-    #[serde(
-        rename = "_id",
-        serialize_with = "serialize_hex_string_as_object_id",
-        deserialize_with = "deserialize_object_id_to_hex_string"
-    )]
+    #[serde(rename = "_id", with = "hex_string_as_object_id")]
     pub id: String,
 
     pub name: String,
@@ -44,11 +41,7 @@ pub struct InsertableJob {
 // Snapshots of a Job
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Snapshot {
-    #[serde(
-        rename = "_id",
-        serialize_with = "serialize_hex_string_as_object_id",
-        deserialize_with = "deserialize_object_id_to_hex_string"
-    )]
+    #[serde(rename = "_id", with = "hex_string_as_object_id")]
     pub id: String,
 
     pub job_id: String,
