@@ -1,4 +1,3 @@
-use futures::future;
 use std::error::Error;
 
 use webmonitor_core::{
@@ -7,7 +6,6 @@ use webmonitor_core::{
 };
 
 use dotenv::dotenv;
-use log::info;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {

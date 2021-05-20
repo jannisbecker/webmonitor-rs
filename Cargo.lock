@@ -2216,6 +2216,9 @@ dependencies = [
 [[package]]
 name = "webmonitor-config"
 version = "0.1.0"
+dependencies = [
+ "tokio",
+]
 
 [[package]]
 name = "webmonitor-core"

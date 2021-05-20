@@ -1,3 +1,8 @@
-fn main() {
-    println!("Hello, world!");
+use std::error::Error;
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn Error>> {
+    loop {}
+
+    Ok(())
 }

@@ -9,7 +9,7 @@ edition = "2018"
 [dependencies]
 webmonitor-core = { path = "../webmonitor-core" }
 
-tokio = { version = "1.5.0", features = ["rt"] }
+tokio = { version = "1.5.0", features = [ "rt", "rt-multi-thread", "macros" ] }
 futures = "0.3.14"
 
 thiserror = "1.0.24"
